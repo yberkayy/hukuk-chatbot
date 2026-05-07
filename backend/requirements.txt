@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+langchain
+langchain-community
+langchain-openai
+langchain-huggingface
+chromadb
+sentence-transformers
+python-dotenv
+pymupdf
+pydantic-settings
+langchain-chroma
+aiosqlite
+python-jose[cryptography]
+python-multipart

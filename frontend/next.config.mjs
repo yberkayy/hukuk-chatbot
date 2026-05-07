@@ -5,7 +5,7 @@ const nextConfig = {
       {
         // Proxy all /api/* routes to the backend EXCEPT /api/auth/* (handled by NextAuth)
         source: '/api/:path((?!auth).*)',
-        destination: 'http://localhost:8000/:path*',
+        destination: `${process.env.BACKEND_URL || 'http://localhost:8000'}/:path*`,
       },
     ];
   },

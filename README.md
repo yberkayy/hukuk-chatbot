@@ -1,99 +1,69 @@
-# Hukuk AI SaaS
+# Hukuk Chatbot
 
-Hukuk AI is a comprehensive legal assistant SaaS application designed to answer questions about Turkish Law using a Retrieval-Augmented Generation (RAG) architecture. It features a robust Python FastAPI backend for AI model integration and a sleek, modern Next.js 14 frontend.
+Hukuk Chatbot, Retrieval-Augmented Generation (RAG) mimarisi kullanılarak Türk Hukuku (örneğin İş Kanunu vb.) hakkında soruları yanıtlamak üzere tasarlanmış, hafif ve bağımsız bir yapay zeka asistanıdır.
 
----
-
-## 🏗️ Architecture Overview
-
-The system is separated into two main components:
-1. **Backend** (`/backend`): A FastAPI Python server handling document ingestion, Chroma vector database storage, and OpenAI LLM streaming.
-2. **Frontend** (`/frontend`): A Next.js 14 (App Router) React application serving as the UI, utilizing Tailwind CSS and Server-Sent Events (SSE) for real-time streaming.
+Proje, hızlı yanıtlar verebilmek için FastAPI tabanlı bir backend ve kullanıcı dostu bir Next.js frontend içermektedir.
 
 ---
 
-## ⚙️ Backend Setup & Configuration
+## 🏗️ Mimari Özeti
 
-The backend requires Python 3.10+ and uses an OpenAI model to process legal questions.
+Sistem iki ana bileşenden oluşmaktadır:
+1. **Backend** (`/backend`): Vektör veri tabanında (ChromaDB) saklanan hukuki metinleri arayan ve OpenAI modelleri ile anlamlı cevaplar üreterek sonuçları frontend'e anlık olarak (streaming) gönderen Python/FastAPI sunucusu.
+2. **Frontend** (`/frontend`): React tabanlı Next.js 14 (App Router) uygulaması. Kullanıcı arayüzünü (UI) sunar, Tailwind CSS ile şekillendirilmiştir ve gerçek zamanlı cevap akışı (SSE - Server-Sent Events) kullanır.
 
-### 1. Installation
-Navigate to the backend directory and install dependencies:
+---
+
+## ⚙️ Kurulum ve Ayarlar (Backend)
+
+Backend'in çalışması için Python 3.10+ gereklidir ve soruları yanıtlamak için OpenAI modeli kullanılır.
+
+### 1. Gereksinimlerin Yüklenmesi
+Terminalden `backend` dizinine gidin ve gerekli paketleri yükleyin:
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # Or `venv\Scripts\activate` on Windows
+# Windows için:
+venv\Scripts\activate
+# Mac/Linux için:
+# source venv/bin/activate
 pip install -r requirements.txt
 ```
   
-### 2. Environment Variables (.env)
-Create a `.env` file in the `backend/` directory. Use the `.env.example` file as a reference:
+### 2. Çevresel Değişkenler (.env)
+`backend/` dizini içinde bir `.env` dosyası oluşturun. Şablon olarak `.env.example` dosyasını kullanabilirsiniz:
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4o
-ADMIN_API_KEY=your_secure_admin_key_here
+OPENAI_API_KEY=sizin_openai_api_anahtariniz
+OPENAI_MODEL=gpt-4o-mini
 SIMILARITY_THRESHOLD=0.75
 ```
-*Note: `ADMIN_API_KEY` is required to securely upload new documents to the RAG database.*
 
-### 3. Running the Server
-Run the FastAPI application via `uvicorn`:
+### 3. Sunucuyu Başlatma
+FastAPI uygulamasını `uvicorn` ile başlatın:
 ```bash
 python -m uvicorn app.main:app --reload --port 8000
 ```
-The API will be accessible at `http://localhost:8000`.
+API, `http://localhost:8000` adresinde çalışmaya başlayacaktır.
 
 ---
 
-## 📂 Document Management (Admin)
+## 💻 Kurulum ve Ayarlar (Frontend)
 
-The backend features an admin endpoint to securely upload and embed PDF files directly into the persistent Chroma Vector DB.
+Frontend, kullanıcıların chatbot ile yazıştığı modern bir arayüz sağlar.
 
-**Endpoint:** `POST /admin/upload`
-**Features:**
-- Duplicates prevention (skips existing identical chunks).
-- Automatic text splitting and `intfloat/multilingual-e5-large` HuggingFace Embeddings.
-- Persists data to the `/backend/chroma_db` and `/backend/data` directories.
-
-**Usage Example via cURL:**
-```bash
-curl -X POST "http://localhost:8000/admin/upload" \
-  -H "X-API-Key: your_secure_admin_key_here" \
-  -F "file=@/path/to/kanun_maddesi.pdf"
-```
-
----
-
-## 💻 Frontend Setup & Configuration
-
-The frontend provides the Chat Interface for the application.
-
-### 1. Installation
-Navigate to the frontend directory:
+### 1. Gereksinimlerin Yüklenmesi
+Terminalden `frontend` dizinine gidin:
 ```bash
 cd frontend
 npm install
 ```
 
-### 2. API Proxy
-The Next.js configuration (`next.config.mjs`) automatically routes `/api/` fetch requests to `http://localhost:8000/`. No `.env` is required for the frontend local bridging.
+### 2. Ortam Değişkenleri (API Proxy)
+Next.js ayarları (`next.config.mjs`) gelen `/api/` isteklerini otomatik olarak `http://localhost:8000/` adresine yönlendirecek şekilde ayarlanmıştır.
 
-### 3. Running the App
-Start the development server:
+### 3. Uygulamayı Başlatma
+Geliştirme sunucusunu başlatın:
 ```bash
 npm run dev
 ```
-Open `http://localhost:3000` in your web browser.
-
----
-
-## ✅ Deployment Checklist
-
-Before moving to production, ensure:
-1. **API Keys are Secured**: Do not bake keys into Docker images. Use secrets managers or CI environment variables.
-2. **Persistent Storage**: Ensure `/backend/chroma_db` and `/backend/data` are mounted as persistent volumes in Docker.
-3. **SSE Proxy Settings**: If deploying behind NGINX, disable buffering to retain the streaming chunks:
-   ```nginx
-   proxy_buffering off;
-   proxy_set_header Validation-Connection "keep-alive";
-   ```
-4. **Build Frontend**: Run `npm run build` in the frontend directory to produce the static and server-rendered HTML.
+Web tarayıcınızda `http://localhost:3000` adresini açarak uygulamayı kullanmaya başlayabilirsiniz.
